@@ -2,4 +2,4 @@ FW/build/*
 FW/build/
 FW/vscode/
 cubemx/*
-sensor_board-backups/*
+sensor_board/sensor_board-backups/
