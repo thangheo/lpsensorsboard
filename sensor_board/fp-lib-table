@@ -1,0 +1,4 @@
+(fp_lib_table
+  (lib (name "BC2AAPC")(type "KiCad")(uri "/home/tng/work/nhayen/electronic/kicad_lib/BC2AAPC")(options "")(descr ""))
+  (lib (name "microphone")(type "KiCad")(uri "/home/tng/work/nhayen/electronic/kicad_lib/AOM-6738P-R")(options "")(descr ""))
+)

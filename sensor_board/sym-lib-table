@@ -1,0 +1,6 @@
+(sym_lib_table
+  (lib (name "STM32L010F4P6")(type "Legacy")(uri "/home/tng/work/nhayen/electronic/kicad_lib/ul_STM32L010F4P6/KiCAD/2023-01-06_04-53-29/2023-01-06_04-53-29.lib")(options "")(descr "Legacy"))
+  (lib (name "BC2AAPC")(type "KiCad")(uri "/home/tng/work/nhayen/electronic/kicad_lib/BC2AAPC/BC2AAPC.kicad_sym")(options "")(descr ""))
+  (lib (name "pin_dai")(type "KiCad")(uri "/home/tng/work/nhayen/electronic/kicad_lib/1010/1010.kicad_sym")(options "")(descr ""))
+  (lib (name "AOM-6738P-R")(type "KiCad")(uri "/home/tng/work/nhayen/electronic/kicad_lib/AOM-6738P-R/AOM-6738P-R.kicad_sym")(options "")(descr ""))
+)
