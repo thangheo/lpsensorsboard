@@ -12,3 +12,4 @@ From my calculation the device can run upto 7-8 month with 2 minutes measuring p
  18658 Lithium battery(1000mAh). Without CO2 sensor it can run up to years without recharging
   battery since this sensor consumps half of the power (35mA).
 ![alt text](https://github.com/thangheo/lpsensorsboard/blob/main/images/pcb1.png?raw=true)
+![alt text](https://github.com/thangheo/lpsensorsboard/blob/main/images/pcb2.png?raw=true)
