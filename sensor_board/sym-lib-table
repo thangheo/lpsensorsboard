@@ -5,4 +5,5 @@
   (lib (name "AOM-6738P-R")(type "KiCad")(uri "/home/tng/work/nhayen/electronic/kicad_lib/AOM-6738P-R/AOM-6738P-R.kicad_sym")(options "")(descr ""))
   (lib (name "BH-18650-W")(type "KiCad")(uri "/home/tng/work/nhayen/electronic/kicad_lib/BH-18650-W/BH-18650-W.kicad_sym")(options "")(descr ""))
   (lib (name "1x04 grove")(type "KiCad")(uri "/home/tng/work/nhayen/electronic/kicad_lib/110990030/110990030.kicad_sym")(options "")(descr ""))
+  (lib (name "SCD41-D-R2")(type "KiCad")(uri "/home/tng/work/nhayen/electronic/kicad_lib/SCD41-D-R2/SCD41-D-R2.kicad_sym")(options "")(descr ""))
 )
