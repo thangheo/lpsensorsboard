@@ -1817,10 +1817,10 @@
       (net 37 "unconnected-(J3-Pad6)") (pinfunction "Shield") (pintype "passive") (tstamp 8b3065b7-0698-4466-9d5c-c2ed96d19967))
     (pad "6" thru_hole oval (at 3.875 1.95 90) (size 1.15 1.8) (drill oval 0.55 1.2) (layers *.Cu *.Mask)
       (net 37 "unconnected-(J3-Pad6)") (pinfunction "Shield") (pintype "passive") (tstamp f526da0a-89cc-42d1-9d45-5ce30b05c4f6))
-    (model "${KICAD6_3DMODEL_DIR}/Connector_USB.3dshapes/USB_Micro-B_Wuerth_629105150521.wrl"
+    (model "/home/tng/work/nhayen/electronic/kicad_lib/usb_micro_B/10118193-0001LF.step"
       (offset (xyz 0 0 0))
       (scale (xyz 1 1 1))
-      (rotate (xyz 0 0 0))
+      (rotate (xyz 90 180 180))
     )
   )
 
