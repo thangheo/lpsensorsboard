@@ -13,3 +13,16 @@ Theo tính toán của tôi, thiết bị có thể chạy tới 7-8 tháng vớ
   pin vì cảm biến này tiêu thụ một nửa năng lượng (35mA trong tổng số 70mA).
 ![alt text](https://github.com/thangheo/lpsensorsboard/blob/main/images/pcb1.png?raw=true)
 ![alt text](https://github.com/thangheo/lpsensorsboard/blob/main/images/pcb2.png?raw=true)
+
+1. Cấu trúc dữ liệu gửi đi (bổ sung sau)
+
+typedef struct {
+  unsigned int temperature;
+  unsigned int humidity;
+  unsigned int AM2320_temperature;
+  unsigned int AM2320_humidity;
+  unsigned int audio;
+  unsigned int light;
+  unsigned int CO2;
+  unsigned int NH3;
+} 

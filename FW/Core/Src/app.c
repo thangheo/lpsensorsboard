@@ -1,7 +1,7 @@
 #include "app.h"
 //function prototype;
 void read_sensirion_data(sensor_data_fusion_t *data);
-void read_CO_data(sensor_data_fusion_t *data);
+// void read_CO_data(sensor_data_fusion_t *data);
 void read_NH3_data(sensor_data_fusion_t *data);
 void re_init_hw(void);
 void read_sensor_data(sensor_data_fusion_t *data);
@@ -240,9 +240,9 @@ void read_sensirion_data(sensor_data_fusion_t *data) {
 
     return 0;
 }
-void read_CO_data(sensor_data_fusion_t *data){
-    data->CO=234;
-}
+// void read_CO_data(sensor_data_fusion_t *data){
+//     data->CO=234;
+// }
 void read_NH3_data(sensor_data_fusion_t *data){
     data->NH3=2324;
 }
@@ -257,7 +257,7 @@ void read_sensor_data(sensor_data_fusion_t *data){
     read_AM2320_hu_temp_data(data);
     read_audio_data(data);
     read_sensirion_data(data);
-    read_CO_data(data);
+    // read_CO_data(data);
     read_NH3_data(data);
 
 }
