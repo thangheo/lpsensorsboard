@@ -33,6 +33,7 @@ typedef struct
 #define b_light_BIT  (1<<2)
 #define b_audio_BIT  (1<<3)
 #define b_NH3_BIT  (1<<4)
+#define b_GOTO_SLEEP_FOREVER (1<<7)
 #define ALL_SENSORS_DATE_READY    (bAM2320_BIT|bSCD4x_BIT|b_light_BIT| \
         b_audio_BIT|b_NH3_BIT)
 
@@ -47,6 +48,7 @@ void read_light_sensor_task(void *pvParameters);
 void read_AM2320_hu_temp_data(void *pvParameters);
 void read_audio_data_task(void *pvParameters);
 void power_saving_task(void *pvParameters);
+void tx_to_controller_task(void* pvParameters);
 
 
 

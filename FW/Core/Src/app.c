@@ -2,22 +2,34 @@
 #include "stm32l0xx_hal.h"
 #include "cmsis_os.h"
 #include "semphr.h" 
-uint32_t u32_sensor_data_ready=0;
+#include "event_groups.h"
+// uint32_t u32_sensor_data_ready=0;
 //function prototype;
 //global vars
-SemaphoreHandle_t ADC1_Mutex;
-SemaphoreHandle_t I2C1_Mutex;
-
+extern SemaphoreHandle_t ADC1_Mutex;
+extern SemaphoreHandle_t I2C1_Mutex;
+extern UART_HandleTypeDef huart1;
+extern EventGroupHandle_t xSensorsEventGroup;
+__IO ITStatus UartReady = RESET;
 
 void power_saving_task(void *pvParameters){
     //wait something here
     const TickType_t xDelay = 100 / portTICK_PERIOD_MS;
 
     for(;;){
-        //turn off sensor power supply before go to sleep
-        while(u32_sensor_data_ready != ALL_SENSORS_DATE_READY){
-            vTaskDelay( xDelay );
-        }
+        //turn off sensor power supply before go to sleep for the next incarnation
+        EventBits_t uxBits;
+        const TickType_t xTicksToWait = 150000 / portTICK_PERIOD_MS;
+
+        /* Wait a maximum of 120s for either bit 0 or bit 4 to be set within
+        the event group.  Clear the bits before exiting. */
+        uxBits = xEventGroupWaitBits(
+                    xSensorsEventGroup,  
+                    b_GOTO_SLEEP_FOREVER, 
+                    pdTRUE,       
+                    pdFALSE,       /* Don't wait for both bits, either bit will do. */
+                    xTicksToWait );
+        
         HAL_GPIO_WritePin(GPIOC, GPIO_PIN_15, GPIO_PIN_RESET);
         HAL_PWR_EnterSTANDBYMode();
     }
@@ -133,12 +145,15 @@ void read_AM2320_hu_temp_data(void *pvParameters){
         xSemaphoreGive(I2C1_Mutex);
 
         //data ready
-        u32_sensor_data_ready |= bAM2320_BIT;
+        // u32_sensor_data_ready |= bAM2320_BIT; 
+        xEventGroupSetBits(
+                            xSensorsEventGroup,    
+                            bAM2320_BIT );
         // my_printf("Temperature: %.1fºC\r\n", temperature);
         // my_printf("Humidity: %.1f%%\r\n", humidity);
             /* USER CODE END WHILE */
             //sleep endless time
-        const TickType_t xDelay = 1200000 / portTICK_PERIOD_MS;
+        const TickType_t xDelay = portMAX_DELAY / portTICK_PERIOD_MS;
         vTaskDelay( xDelay );
     }
 }
@@ -218,9 +233,11 @@ void read_audio_data_task(void *pvParameters){
         //  Vpr=0.33*(1+L_i)
         // -->Li = Vpr*3-1 (Lux) (min)
         data->audio = adc_val;
-        u32_sensor_data_ready |= b_audio_BIT;
-
-        const TickType_t xDelay = 1200000 / portTICK_PERIOD_MS;
+        // u32_sensor_data_ready |= b_audio_BIT;
+        xEventGroupSetBits(
+                            xSensorsEventGroup,    
+                            b_audio_BIT );
+        const TickType_t xDelay = portMAX_DELAY / portTICK_PERIOD_MS;
         vTaskDelay( xDelay );
     }
 }
@@ -294,8 +311,11 @@ void read_sensirion_data_task(void *pvParameters) {
         }
         xSemaphoreGive(I2C1_Mutex);
 
-        u32_sensor_data_ready |= bSCD4x_BIT;
-        const TickType_t xDelay = 1200000 / portTICK_PERIOD_MS;
+        // u32_sensor_data_ready |= bSCD4x_BIT;
+        xEventGroupSetBits(
+                            xSensorsEventGroup,    
+                            bSCD4x_BIT );
+        const TickType_t xDelay = portMAX_DELAY / portTICK_PERIOD_MS;
         vTaskDelay( xDelay );
         // } //for loop
 
@@ -312,11 +332,75 @@ void read_NH3_data_task(void *pvParameters){
         data->NH3=2324; 
         xSemaphoreGive(I2C1_Mutex);
 
-        u32_sensor_data_ready |= b_NH3_BIT;
-        const TickType_t xDelay = 1200000 / portTICK_PERIOD_MS;
+        // u32_sensor_data_ready |= b_NH3_BIT;
+        xEventGroupSetBits(
+                            xSensorsEventGroup,    
+                            b_NH3_BIT );
+        const TickType_t xDelay = portMAX_DELAY / portTICK_PERIOD_MS;
         vTaskDelay( xDelay );
     }
 }
+void tx_to_controller_task(void* pvParameters)
+{
+    sensor_data_fusion_t *data = pvParameters;
+    const TickType_t xDelay = 200 / portTICK_PERIOD_MS;
+    for(;;){
+      
+        //wait for all sensor finnish their tasks
+        /* using var */
+        // while(u32_sensor_data_ready != ALL_SENSORS_DATE_READY){
+        //     vTaskDelay( xDelay );
+        // }
+        // u32_sensor_data_ready=0;
+        /* using event*/
+        EventBits_t uxBits;
+        //  wait 150s max
+        const TickType_t xTicksToWait = 150000 / portTICK_PERIOD_MS;
+
+        /* Wait a maximum of 120s for either bit 0 or bit 4 to be set within
+        the event group.  Clear the bits before exiting. */
+        uxBits = xEventGroupWaitBits(
+                    xSensorsEventGroup,  
+                    ALL_SENSORS_DATE_READY, 
+                    pdTRUE,       
+                    pdFALSE,      
+                    xTicksToWait );
+        if( ( uxBits & ( ALL_SENSORS_DATE_READY) ) == ALL_SENSORS_DATE_READY )
+        {
+            /* xEventGroupWaitBits() returned because both bits were set. */
+            
+            
+            /*##-2- Start the transmission process #####################################*/  
+            /* While the UART in reception process, user can transmit data through 
+                "aTxBuffer" buffer */
+            if(HAL_UART_Transmit_IT(&huart1, (uint8_t*)data, sizeof(sensor_data_fusion_t))!= HAL_OK)
+            {
+                Error_Handler();
+            }
+            
+            /*##-3- Wait for the end of the transfer ###################################*/   
+            while (UartReady != SET)
+            {
+            }
+            /* Reset transmission flag */
+            UartReady = RESET;
+        } 
+        else{
+            //timeout and there were something wrong with sensors..
+        }        
+        //trigger sleep mode
+        // EventBits_t uxBits;
+        /* Set bit 0 and bit 4 in xSensorsEventGroup. */
+        xEventGroupSetBits(
+                                xSensorsEventGroup,    
+                                b_GOTO_SLEEP_FOREVER );
+        
+        const TickType_t xDelay = portMAX_DELAY / portTICK_PERIOD_MS;
+        vTaskDelay( xDelay );
+        
+    }
+}
+ 
 void re_init_hw(void){
     return;
 }

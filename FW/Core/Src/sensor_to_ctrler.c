@@ -17,14 +17,6 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *UartHandle)
 }
 void tx_to_controller(void* data)
 {
-    // UART_1_Start();
-    /////////////////
-    /* Note:  This works for little-endian uint16_t output data to the UART 
-        since the Cortex CPU is little-endian based for data storage 
-        If the URT needs Big-Endian uint16_t data, the byte order needs to be swapped 
-    */
-    /* The board sends the message and expects to receive it back */
-    
     /*##-2- Start the transmission process #####################################*/  
     /* While the UART in reception process, user can transmit data through 
         "aTxBuffer" buffer */

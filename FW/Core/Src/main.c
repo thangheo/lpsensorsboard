@@ -21,6 +21,8 @@
 #include "cmsis_os.h"
 #include "app.h"
 #include "i2c.h"
+#include "event_groups.h"
+#include "semphr.h" 
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -53,7 +55,9 @@ RTC_HandleTypeDef hrtc;
 UART_HandleTypeDef huart1;
 
 WWDG_HandleTypeDef hwwdg;
-
+EventGroupHandle_t xSensorsEventGroup;
+SemaphoreHandle_t ADC1_Mutex;
+SemaphoreHandle_t I2C1_Mutex;
 /* Definitions for defaultTask */
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
@@ -91,94 +95,101 @@ void SystemPower_Config(void);
   */
 int main(void)
 {
-  HAL_Init();
-  /* Configure the system clock */
-  SystemClock_Config();
-  /* USER CODE BEGIN SysInit */
-  /* USER CODE END SysInit */
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_ADC_Init();
-  // MX_I2C1_Init();
-  i2c_init();
+    HAL_Init();
+    /* Configure the system clock */
+    SystemClock_Config();
+    /* USER CODE BEGIN SysInit */
+    /* USER CODE END SysInit */
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_ADC_Init();
+    // MX_I2C1_Init();
+    i2c_init();
 
-  MX_LPTIM1_Init();
-  MX_USART1_UART_Init();
-  MX_RTC_Init();
-  // MX_WWDG_Init();
-  /* USER CODE BEGIN 2 */
-  /* Configure the system Power */
-  SystemPower_Config();
-  
-  /* Check and handle if the system was resumed from Standby mode */ 
-  if(__HAL_PWR_GET_FLAG(PWR_FLAG_SB) != RESET)
-  {
-    /* Clear Standby flag */
-    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
-  }
-  /*The Following Wakeup sequence is highly recommended prior to each Standby mode entry
-    mainly  when using more than one wakeup source this is to not miss any wakeup event.
-      - Disable all used wakeup sources,
-      - Clear all related wakeup flags, 
-      - Re-enable all used wakeup sources,
-      - Enter the Standby mode.
-    */
-    /*Disable all used wakeup sources: Pin1(PA.0)*/
-  HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN2);
-  
-  /*Clear all related wakeup flags*/
-  __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
-  
-  /*Re-enable all used wakeup sources: Pin2(PC.13)*/
-  HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN2);
-  //setup RTC for wakeup interrupt
-  MX_RTC_Init();
+    MX_LPTIM1_Init();
+    MX_USART1_UART_Init();
+    MX_RTC_Init();
+    // MX_WWDG_Init();
+    /* USER CODE BEGIN 2 */
+    /* Configure the system Power */
+    SystemPower_Config();
+    
+    /* Check and handle if the system was resumed from Standby mode */ 
+    if(__HAL_PWR_GET_FLAG(PWR_FLAG_SB) != RESET)
+    {
+      /* Clear Standby flag */
+      __HAL_PWR_CLEAR_FLAG(PWR_FLAG_SB);
+    }
+    /*The Following Wakeup sequence is highly recommended prior to each Standby mode entry
+      mainly  when using more than one wakeup source this is to not miss any wakeup event.
+        - Disable all used wakeup sources,
+        - Clear all related wakeup flags, 
+        - Re-enable all used wakeup sources,
+        - Enter the Standby mode.
+      */
+      /*Disable all used wakeup sources: Pin1(PA.0)*/
+    HAL_PWR_DisableWakeUpPin(PWR_WAKEUP_PIN2);
+    
+    /*Clear all related wakeup flags*/
+    __HAL_PWR_CLEAR_FLAG(PWR_FLAG_WU);
+    
+    /*Re-enable all used wakeup sources: Pin2(PC.13)*/
+    HAL_PWR_EnableWakeUpPin(PWR_WAKEUP_PIN2);
+    //setup RTC for wakeup interrupt
+    MX_RTC_Init();
 
-  //turn on sensors power supply
-  HAL_GPIO_WritePin(GPIOC, GPIO_PIN_15, GPIO_PIN_SET);
-  /* USER CODE END 2 */
+    //turn on sensors power supply
+    HAL_GPIO_WritePin(GPIOC, GPIO_PIN_15, GPIO_PIN_SET);
+    /* USER CODE END 2 */
 
-  /* Init scheduler */
-  osKernelInitialize();
+    /* Init scheduler */
+    osKernelInitialize();
 
-  /* Create the thread(s) */
+      /* Attempt to create the event group. */
+    xSensorsEventGroup = xEventGroupCreate();
+    /* create mutexs*/
+    ADC1_Mutex = xSemaphoreCreateMutex();
+    I2C1_Mutex = xSemaphoreCreateMutex();
 
-  /* creation of defaultTask */
-  defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
-  sensor_data_fusion_t m_sensor_data_fusion;
-  xTaskCreate(&read_light_sensor_task,"light_sensor",128,&m_sensor_data_fusion,2,NULL);
-  xTaskCreate(read_AM2320_hu_temp_data,"AM2320",128,&m_sensor_data_fusion,9,NULL);
-  xTaskCreate(read_audio_data_task,"mic",128,&m_sensor_data_fusion,3,NULL);
-  xTaskCreate(read_sensirion_data_task,"scd4x",128,&m_sensor_data_fusion,2,NULL);
-  xTaskCreate(read_NH3_data_task,"NH3",128,&m_sensor_data_fusion,4,NULL);
-  xTaskCreate(power_saving_task,"power_saving",128,&m_sensor_data_fusion,8,NULL);
-  // xTaskCreate(main_task,"task1",128,NULL,1,NULL);
 
-    /* USER CODE BEGIN 3 */
-   while (1)
-   {
-    //should never come here bc wake up is like a RESET
-    // https://controllerstech.com/low-power-modes-in-stm32/
-   }
-  /* USER CODE END RTOS_THREADS */
+    /* Create the thread(s) */
 
-  /* USER CODE BEGIN RTOS_EVENTS */
-  /* add events, ... */
-  /* USER CODE END RTOS_EVENTS */
+    /* creation of defaultTask */
+    defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+    sensor_data_fusion_t m_sensor_data_fusion;
+    xTaskCreate(&read_light_sensor_task,"light_sensor",128,&m_sensor_data_fusion,2,NULL);
+    xTaskCreate(read_AM2320_hu_temp_data,"AM2320",128,&m_sensor_data_fusion,9,NULL);
+    xTaskCreate(read_audio_data_task,"mic",128,&m_sensor_data_fusion,3,NULL);
+    xTaskCreate(read_sensirion_data_task,"scd4x",128,&m_sensor_data_fusion,2,NULL);
+    xTaskCreate(read_NH3_data_task,"NH3",128,&m_sensor_data_fusion,4,NULL);
+    xTaskCreate(power_saving_task,"power_saving",128,&m_sensor_data_fusion,8,NULL);
+    xTaskCreate(tx_to_controller_task,"data_transfer",128,&m_sensor_data_fusion,15,NULL);
 
-  /* Start scheduler */
-  osKernelStart();
+      /* USER CODE BEGIN 3 */
+    while (1)
+    {
+      //should never come here bc wake up is like a RESET
+      // https://controllerstech.com/low-power-modes-in-stm32/
+    }
+    /* USER CODE END RTOS_THREADS */
 
-  /* We should never get here as control is now taken by the scheduler */
-  /* Infinite loop */
-  /* USER CODE BEGIN WHILE */
-  while (1)
-  {
-    /* USER CODE END WHILE */
+    /* USER CODE BEGIN RTOS_EVENTS */
+    /* add events, ... */
+    /* USER CODE END RTOS_EVENTS */
 
-    /* USER CODE BEGIN 3 */
-  }
-  /* USER CODE END 3 */
+    /* Start scheduler */
+    osKernelStart();
+
+    /* We should never get here as control is now taken by the scheduler */
+    /* Infinite loop */
+    /* USER CODE BEGIN WHILE */
+    while (1)
+    {
+      /* USER CODE END WHILE */
+
+      /* USER CODE BEGIN 3 */
+    }
+    /* USER CODE END 3 */
 }
 void SystemPower_Config(void)
 {
