@@ -33,6 +33,8 @@
 #include "sensirion_common.h"
 #include "sensirion_config.h"
 #include "i2c.h"
+#include "cmsis_os.h"
+
 /*
  * INSTRUCTIONS
  * ============
@@ -122,8 +124,16 @@ int8_t sensirion_i2c_hal_write(uint8_t address, const uint8_t* data,
 void sensirion_i2c_hal_sleep_usec(uint32_t useconds) {
     /* TODO:IMPLEMENT */
     //not yet implemented, just poll
-    int i=8; //8Mhz freq
-    while(i-->0);
+    if(useconds < 500){
+        #warning "FreeRTOS not support us delay"
+        uint32_t mc = useconds*8;
+        while(mc-- > 0);
+    }
+    else{
+        const TickType_t xDelay = (useconds/1000) / portTICK_PERIOD_MS;
+        vTaskDelay( xDelay );
+    }
+  
 }
 // void delay_us (uint16_t us)
 // {

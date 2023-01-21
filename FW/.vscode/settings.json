@@ -1,6 +1,10 @@
 {
     "files.associations": {
         "main.h": "c",
-        "stm32l0xx_hal.h": "c"
+        "stm32l0xx_hal.h": "c",
+        "app.h": "c",
+        "cmsis_os.h": "c",
+        "freertos.h": "c",
+        "semphr.h": "c"
     }
 }
