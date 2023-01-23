@@ -157,6 +157,10 @@ int main(void)
     /* creation of defaultTask */
     defaultTaskHandle = osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
     sensor_data_fusion_t m_sensor_data_fusion;
+    /* SET SENSIR ID HERE*/
+    /* 0x0-0x99 for inside sensor -0x100-0x200 for outside*/
+    m_sensor_data_fusion.sensorID = 0x100;
+    #warning "set sensor ID before flash
     xTaskCreate(&read_light_sensor_task,"light_sensor",128,&m_sensor_data_fusion,2,NULL);
     xTaskCreate(read_AM2320_hu_temp_data,"AM2320",128,&m_sensor_data_fusion,9,NULL);
     xTaskCreate(read_audio_data_task,"mic",128,&m_sensor_data_fusion,3,NULL);

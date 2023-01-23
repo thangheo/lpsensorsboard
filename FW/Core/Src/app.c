@@ -107,8 +107,7 @@ void read_light_sensor_task(void *pvParameters){
             //sleep 100ms
             const TickType_t xDelay = 10 / portTICK_PERIOD_MS;
             vTaskDelay( xDelay );
-            //  Vpr=0.33*(1+L_i)
-            // -->Li = Vpr*3-1 (Lux) (min)
+            // (float)Lux = ((float) Vpr)/817 - 1.708796
         }
         //release ADC mutex
         xSemaphoreGive(ADC1_Mutex);

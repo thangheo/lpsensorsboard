@@ -8,17 +8,21 @@
 #include "sensirion_i2c_hal.h"
 // #define   AM2320_SLAVE_ADDR=0xB8;
 
+//ID of inside sensor from 0-0x99
+#define MAX_INSIDE_SENSOR_ID 0x99
 typedef struct {
+  unsigned int sensorID;
   unsigned int temperature;
   unsigned int humidity;
   unsigned int AM2320_temperature;
   unsigned int AM2320_humidity;
   unsigned int audio;
   unsigned int light;
-  unsigned int CO;
+  unsigned int accleration;
   unsigned int CO2;
   unsigned int NH3;
 } sensor_data_fusion_t;
+
 // typedef struct Point Point;
 typedef struct 
 { /* Mail object structure */
