@@ -125,7 +125,6 @@ void sensirion_i2c_hal_sleep_usec(uint32_t useconds) {
     /* TODO:IMPLEMENT */
     //not yet implemented, just poll
     if(useconds < 500){
-        #warning "FreeRTOS not support us delay"
         uint32_t mc = useconds*8;
         while(mc-- > 0);
     }

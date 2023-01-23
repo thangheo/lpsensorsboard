@@ -1,5 +1,3 @@
-/**
-  
 /* Includes ------------------------------------------------------------------*/
 #include "stm32l0xx_hal.h"
 
@@ -160,7 +158,7 @@ static void Error_Handler(void)
 //     // BSP_LED_Toggle(LED2); 
 //     HAL_Delay(1000);
 //   } 
-    printf("timeout\n");
+    // printf("timeout\n");
   
 }
 

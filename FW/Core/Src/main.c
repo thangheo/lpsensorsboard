@@ -159,16 +159,34 @@ int main(void)
     sensor_data_fusion_t m_sensor_data_fusion;
     /* SET SENSIR ID HERE*/
     /* 0x0-0x99 for inside sensor -0x100-0x200 for outside*/
-    m_sensor_data_fusion.sensorID = 0x100;
-    #warning "set sensor ID before flash
-    xTaskCreate(&read_light_sensor_task,"light_sensor",128,&m_sensor_data_fusion,2,NULL);
-    xTaskCreate(read_AM2320_hu_temp_data,"AM2320",128,&m_sensor_data_fusion,9,NULL);
-    xTaskCreate(read_audio_data_task,"mic",128,&m_sensor_data_fusion,3,NULL);
-    xTaskCreate(read_sensirion_data_task,"scd4x",128,&m_sensor_data_fusion,2,NULL);
-    xTaskCreate(read_NH3_data_task,"NH3",128,&m_sensor_data_fusion,4,NULL);
-    xTaskCreate(power_saving_task,"power_saving",128,&m_sensor_data_fusion,8,NULL);
-    xTaskCreate(tx_to_controller_task,"data_transfer",128,&m_sensor_data_fusion,15,NULL);
+    
+    #warning "set sensor ID before flash"
+    // #define INSIDE_SENSOR 
+    // #define OUTSIDE_SENSOR 
+    #ifdef OUTSIDE_SENSOR 
+      m_sensor_data_fusion.sensorID = 0x100;
+      #warning " OUTSIDE_SENSOR. ID 0x100"
 
+      xTaskCreate(read_accel_sensor_task,"acceleration",128,&m_sensor_data_fusion,6,NULL);
+      xTaskCreate(&read_light_sensor_task,"light_sensor",128,&m_sensor_data_fusion,2,NULL);
+      xTaskCreate(read_AM2320_hu_temp_data,"AM2320",128,&m_sensor_data_fusion,9,NULL);
+      // xTaskCreate(read_audio_data_task,"mic",128,&m_sensor_data_fusion,3,NULL);
+      // xTaskCreate(read_sensirion_data_task,"scd4x",128,&m_sensor_data_fusion,2,NULL);
+      // xTaskCreate(read_NH3_data_task,"NH3",128,&m_sensor_data_fusion,4,NULL);
+      xTaskCreate(power_saving_task,"power_saving",128,&m_sensor_data_fusion,8,NULL);
+      xTaskCreate(tx_to_controller_task,"data_transfer",128,&m_sensor_data_fusion,15,NULL);
+    #else 
+      m_sensor_data_fusion.sensorID = 0x1;
+      #warning " INSIDE_SENSOR. ID 0x1"
+
+      xTaskCreate(&read_light_sensor_task,"light_sensor",128,&m_sensor_data_fusion,2,NULL);
+      xTaskCreate(read_AM2320_hu_temp_data,"AM2320",128,&m_sensor_data_fusion,9,NULL);
+      xTaskCreate(read_audio_data_task,"mic",128,&m_sensor_data_fusion,3,NULL);
+      xTaskCreate(read_sensirion_data_task,"scd4x",128,&m_sensor_data_fusion,2,NULL);
+      xTaskCreate(read_NH3_data_task,"NH3",128,&m_sensor_data_fusion,4,NULL);
+      xTaskCreate(power_saving_task,"power_saving",128,&m_sensor_data_fusion,8,NULL);
+      xTaskCreate(tx_to_controller_task,"data_transfer",128,&m_sensor_data_fusion,15,NULL);
+    #endif
       /* USER CODE BEGIN 3 */
     while (1)
     {

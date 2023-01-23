@@ -53,7 +53,7 @@ void read_AM2320_hu_temp_data(void *pvParameters);
 void read_audio_data_task(void *pvParameters);
 void power_saving_task(void *pvParameters);
 void tx_to_controller_task(void* pvParameters);
-
+void read_accel_sensor_task(void *pvParameters);
 
 
 #endif
