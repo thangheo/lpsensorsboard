@@ -62,7 +62,7 @@ SemaphoreHandle_t I2C1_Mutex;
 osThreadId_t defaultTaskHandle;
 const osThreadAttr_t defaultTask_attributes = {
   .name = "defaultTask",
-  .stack_size = 128 * 4,
+  .stack_size = configMINIMAL_STACK_SIZE * 4,
   .priority = (osPriority_t) osPriorityNormal,
 };
 /* USER CODE BEGIN PV */
@@ -167,25 +167,25 @@ int main(void)
       m_sensor_data_fusion.sensorID = 0x100;
       #warning " OUTSIDE_SENSOR. ID 0x100"
 
-      xTaskCreate(read_accel_sensor_task,"acceleration",128,&m_sensor_data_fusion,6,NULL);
-      xTaskCreate(&read_light_sensor_task,"light_sensor",128,&m_sensor_data_fusion,2,NULL);
-      xTaskCreate(read_AM2320_hu_temp_data,"AM2320",128,&m_sensor_data_fusion,9,NULL);
-      // xTaskCreate(read_audio_data_task,"mic",128,&m_sensor_data_fusion,3,NULL);
-      // xTaskCreate(read_sensirion_data_task,"scd4x",128,&m_sensor_data_fusion,2,NULL);
-      // xTaskCreate(read_NH3_data_task,"NH3",128,&m_sensor_data_fusion,4,NULL);
-      xTaskCreate(power_saving_task,"power_saving",128,&m_sensor_data_fusion,8,NULL);
-      xTaskCreate(tx_to_controller_task,"data_transfer",128,&m_sensor_data_fusion,15,NULL);
+      xTaskCreate(read_accel_sensor_task,"acceleration",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,6,NULL);
+      xTaskCreate(&read_light_sensor_task,"light_sensor",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,2,NULL);
+      xTaskCreate(read_AM2320_hu_temp_data,"AM2320",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,9,NULL);
+      // xTaskCreate(read_audio_data_task,"mic",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,3,NULL);
+      // xTaskCreate(read_sensirion_data_task,"scd4x",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,2,NULL);
+      // xTaskCreate(read_NH3_data_task,"NH3",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,4,NULL);
+      xTaskCreate(power_saving_task,"power_saving",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,8,NULL);
+      xTaskCreate(tx_to_controller_task,"data_transfer",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,15,NULL);
     #else 
       m_sensor_data_fusion.sensorID = 0x1;
       #warning " INSIDE_SENSOR. ID 0x1"
 
-      xTaskCreate(&read_light_sensor_task,"light_sensor",128,&m_sensor_data_fusion,2,NULL);
-      xTaskCreate(read_AM2320_hu_temp_data,"AM2320",128,&m_sensor_data_fusion,9,NULL);
-      xTaskCreate(read_audio_data_task,"mic",128,&m_sensor_data_fusion,3,NULL);
-      xTaskCreate(read_sensirion_data_task,"scd4x",128,&m_sensor_data_fusion,2,NULL);
-      xTaskCreate(read_NH3_data_task,"NH3",128,&m_sensor_data_fusion,4,NULL);
-      xTaskCreate(power_saving_task,"power_saving",128,&m_sensor_data_fusion,8,NULL);
-      xTaskCreate(tx_to_controller_task,"data_transfer",128,&m_sensor_data_fusion,15,NULL);
+      xTaskCreate(&read_light_sensor_task,"light_sensor",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,2,NULL);
+      xTaskCreate(read_AM2320_hu_temp_data,"AM2320",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,9,NULL);
+      xTaskCreate(read_audio_data_task,"mic",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,3,NULL);
+      xTaskCreate(read_sensirion_data_task,"scd4x",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,2,NULL);
+      xTaskCreate(read_NH3_data_task,"NH3",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,4,NULL);
+      xTaskCreate(power_saving_task,"power_saving",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,8,NULL);
+      xTaskCreate(tx_to_controller_task,"data_transfer",configMINIMAL_STACK_SIZE,&m_sensor_data_fusion,15,NULL);
     #endif
       /* USER CODE BEGIN 3 */
     while (1)

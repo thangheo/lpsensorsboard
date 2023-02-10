@@ -2,7 +2,7 @@
 #include "stm32l0xx_hal.h"
 #include "app.h"
 extern UART_HandleTypeDef huart1;
-__IO ITStatus UartReady = RESET;
+extern __IO ITStatus UartReady = RESET;
 
 void HAL_UART_TxCpltCallback(UART_HandleTypeDef *UartHandle)
 {
